@@ -32,7 +32,11 @@ pool.on('error', (err) => console.error('DB Error:', err));
 // ====================
 // Middleware
 // ====================
-app.use(cors({ origin: process.env.FRONTEND_ORIGIN || '*' }));
+app.use(cors({
+  origin: process.env.FRONTEND_ORIGIN,
+  methods: ["GET", "POST"],
+  credentials: true
+}));
 app.use(bodyParser.json());
 app.use(express.static(__dirname));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
