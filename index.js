@@ -61,15 +61,27 @@ const uploadRecording = multer({ storage });
 // ====================
 // ====================
 // Google Drive Service account Setup
-const KEYFILE = path.join(__dirname, process.env.GOOGLE_KEYFILE); // service-account.json
-const SCOPES = ['https://www.googleapis.com/auth/drive'];
+// ====================
+// Google Drive Service Account Setup (using ENV variable instead of file)
+// ====================
+
+// Parse the JSON key directly from environment variable
+let serviceAccount;
+try {
+  serviceAccount = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT || "{}");
+} catch (err) {
+  console.error("❌ Failed to parse GOOGLE_SERVICE_ACCOUNT from environment:", err);
+  serviceAccount = {};
+}
+
+const SCOPES = ["https://www.googleapis.com/auth/drive"];
 
 const auth = new google.auth.GoogleAuth({
-  keyFile: KEYFILE,
+  credentials: serviceAccount,
   scopes: SCOPES
 });
 
-const drive = google.drive({ version: 'v3', auth });
+const drive = google.drive({ version: "v3", auth });
 
 
 
