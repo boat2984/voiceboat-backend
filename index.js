@@ -450,6 +450,13 @@ cleanupOldPublicRecordings();
 // ====================
 // Frontend
 // ====================
+// ====================
+// Root route (for Render keep-alive pings)
+// ====================
+app.get("/", (req, res) => {
+  res.send("✅ VoiceBoat backend is alive");
+});
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`✅ Server running on http://localhost:${PORT}`));
