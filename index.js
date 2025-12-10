@@ -155,7 +155,9 @@ async function getOrCreateUserFolder(username) {
     // 1️⃣ Check if folder exists
     const res = await drive.files.list({
         q: `name='${folderName}' and mimeType='application/vnd.google-apps.folder' and '${parentFolderId}' in parents and trashed=false`,
-        fields: 'files(id, name)'
+        fields: 'files(id, name)',
+        supportsAllDrives: true,
+        includeItemsFromAllDrives: true
     });
 
     if (res.data.files.length > 0) {
@@ -171,7 +173,8 @@ async function getOrCreateUserFolder(username) {
 
     const folder = await drive.files.create({
         requestBody: folderMetadata,
-        fields: 'id'
+        fields: 'id',
+        supportsAllDrives: true
     });
 
     return folder.data.id;
@@ -210,7 +213,8 @@ app.post('/upload', uploadRecording.single('audio'), async (req, res) => {
     // Make public (optional)
     await drive.permissions.create({
       fileId: driveFileId,
-      requestBody: { role: 'reader', type: 'anyone' }
+      requestBody: { role: 'reader', type: 'anyone' },
+      supportsAllDrives: true
     });
 
     // Save metadata to DB
@@ -301,7 +305,8 @@ app.post('/uploadAllToDrive', async (req, res) => {
       const gfile = await drive.files.create({
         requestBody: { name: r.filename, parents: [userFolderId] },
         media: { mimeType: "audio/mp3", body: fs.createReadStream(tmpPath) },
-        fields: "id"
+        fields: "id",
+        supportsAllDrives: true
       });
 
       await drive.permissions.create({ 
