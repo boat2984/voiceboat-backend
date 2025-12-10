@@ -206,16 +206,22 @@ app.post('/upload', uploadRecording.single('audio'), async (req, res) => {
     // Upload to Drive
     const media = { mimeType: mimetype, body: fs.createReadStream(localPath) };
     const resource = { name: originalname, parents: [userFolderId] };
-    const gfile = await drive.files.create({ requestBody: resource, media, fields: 'id' });
+    const gfile = await drive.files.create({
+      requestBody: { name: originalname, parents: [userFolderId] },
+      media: { mimeType: mimetype, body: fs.createReadStream(localPath) },
+      fields: "id",
+      supportsAllDrives: true
+  });
 
     const driveFileId = gfile.data.id;
-
+    
     // Make public (optional)
     await drive.permissions.create({
-      fileId: driveFileId,
+      fileId: gfile.data.id,
       requestBody: { role: 'reader', type: 'anyone' },
       supportsAllDrives: true
     });
+
 
     // Save metadata to DB
     const publicUrl = `https://drive.google.com/uc?id=${driveFileId}&export=download`;
@@ -254,15 +260,18 @@ app.post('/uploadToDrive', async (req, res) => {
     const gfile = await drive.files.create({
       requestBody: { name: filename, parents: [userFolderId] },
       media: { mimeType: "audio/mp3", body: fs.createReadStream(tmpPath) },
-      fields: "id"
+      fields: "id",
+      supportsAllDrives: true
     });
+
 
     const driveFileId = gfile.data.id;
 
     // Make public (optional)
     await drive.permissions.create({
       fileId: driveFileId,
-      requestBody: { role: 'reader', type: 'anyone' }
+      requestBody: { role: 'reader', type: 'anyone' },
+      supportsAllDrives: true
     });
 
     const publicUrl = `https://drive.google.com/uc?id=${driveFileId}&export=download`;
@@ -311,7 +320,8 @@ app.post('/uploadAllToDrive', async (req, res) => {
 
       await drive.permissions.create({ 
         fileId: gfile.data.id, 
-        requestBody: { role: 'reader', type: 'anyone' } 
+        requestBody: { role: 'reader', type: 'anyone' }, 
+        supportsAllDrives: true
       });
 
       const publicUrl = `https://drive.google.com/uc?id=${gfile.data.id}&export=download`;
